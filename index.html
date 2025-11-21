@@ -1,0 +1,214 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>OUKETI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #MotsCles,
+        #MotsChoisis {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            margin: 5px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4444ff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #3333dd;
+        }
+
+        #debug {
+            width: 90%;
+            height: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        hr {
+            border: none;
+            height: 1px;
+            background-color: #ccc;
+            margin: 20px 0;
+        }
+    </style>
+    <script>
+        // éléments de l'interface
+        var debug, DIV_MotsCles, DIV_MotsChoisis;
+        var TousLesMotsCles = [];
+        var MotsCles = [];
+        var MotsChoisis = [];
+
+        function clearDebug() { if (debug) debug.value = ""; }
+        function write() { if (!debug) return; debug.value += Array.from(arguments).join(" "); }
+        function writeln() { if (!debug) return; debug.value += Array.from(arguments).join(" ") + "\n"; }
+
+        function BODY_OnLoad() {
+            debug = document.getElementById("debug");
+            DIV_MotsCles = document.getElementById("MotsCles");
+            DIV_MotsChoisis = document.getElementById("MotsChoisis");
+            // charger le fichier JSON local (JSON_motcles.json)
+            fetch("JSON_motcles.json")
+                .then(response => {
+                    if (!response.ok) throw new Error("Échec du chargement JSON: " + response.status);
+                    return response.json();
+                })
+                .then(json => {
+                    // le fichier attendu est un tableau d'objets {id, label}
+                    TousLesMotsCles = json.map(item => ({ id: item.id, label: item.label }));
+                    init();
+                    AfficherDIVsMotsCles();
+                    AfficherDIVsMotsChoisis();
+                    writeln("JSON chargé :", json.map(i => i.id + ":" + i.label).join(", "));
+                })
+                .catch(err => writeln("Erreur:", err.message));
+        }
+
+        function init() {
+            MotsCles = TousLesMotsCles.slice(); // copie (références aux objets)
+            MotsChoisis = [];
+        }
+
+        function AfficherDIVsMotsCles() {
+            DIV_MotsCles.innerHTML = '<abbr title="Double-cliquez pour réinitialiser">Mots Clés</abbr> : ';
+            var abbrElement = DIV_MotsCles.querySelector('abbr');
+            abbrElement.ondblclick = function () {
+                writeln("Mots-clés réinitialisés");
+                init();
+                AfficherDIVsMotsCles();
+                AfficherDIVsMotsChoisis();
+            };
+
+            for (var i = 0; i < MotsCles.length; i++) {
+                var motCle = MotsCles[i];
+                if (motCle != null) {
+                    const bouton = document.createElement("button");
+                    // afficher l'id de l'objet suivi du label
+                    bouton.textContent = motCle.id + ' - ' + motCle.label;
+                    bouton.dataset.idx = i;
+                    bouton.onclick = button_OnClick;
+                    DIV_MotsCles.appendChild(bouton);
+                }
+            }
+        }
+
+        function AfficherDIVsMotsChoisis() {
+            DIV_MotsChoisis.innerHTML = 'Mots Choisis : ';
+            for (var i = 0; i < MotsChoisis.length; i++) {
+                var motCle = MotsChoisis[i];
+                if (motCle != null) {
+                    const bouton = document.createElement("button");
+                    // afficher l'id de l'objet suivi du label
+                    bouton.textContent = motCle.id + ' - ' + motCle.label;
+                    bouton.dataset.idx = i;
+                    bouton.onclick = button_OnClick;
+                    DIV_MotsChoisis.appendChild(bouton);
+                }
+            }
+        }
+
+        function AfficherID_MotsCles() {
+            if (!DIV_MotsCles || !DIV_MotsChoisis) return;
+            [DIV_MotsCles, DIV_MotsChoisis].forEach(function (div) {
+                var buttons = div.querySelectorAll('button');
+                Array.prototype.forEach.call(buttons, function (btn) {
+                    if (btn.dataset.idx === undefined) return;
+                    var idx = Number(btn.dataset.idx);
+                    var arr = (div.id === "MotsCles") ? MotsCles : MotsChoisis;
+                    var obj = arr[idx];
+                    if (obj) {
+                        btn.textContent = obj.id + ' - ' + obj.label;
+                    }
+                });
+            });
+        }
+
+        function button_OnClick() {
+            const idx = Number(this.dataset.idx);
+            const parentId = this.parentElement.id;
+            if (parentId === "MotsCles") {
+                const item = MotsCles.splice(idx, 1)[0];
+                if (item !== undefined) {
+                    MotsChoisis.push(item);
+                    writeln("MotsCles -> MotsChoisis :", item.id + " " + item.label);
+                }
+            } else if (parentId === "MotsChoisis") {
+                const item = MotsChoisis.splice(idx, 1)[0];
+                if (item !== undefined) {
+                    MotsCles.push(item);
+                    writeln("MotsChoisis -> MotsCles :", item.id + " " + item.label);
+                }
+            }
+            AfficherDIVsMotsCles();
+            AfficherDIVsMotsChoisis();
+        }
+
+        function FONT_Reinit() {
+            writeln("Réinitialisation demandée");
+            init();
+            AfficherDIVsMotsCles();
+            AfficherDIVsMotsChoisis();
+        }
+
+        function buttonSendOnClick() {
+            writeln("Envoi des mots-clés sélectionnés : " + MotsChoisis.map(i => i.label).join(", "));
+        }
+    </script>
+
+</head>
+
+<body onload="BODY_OnLoad()">
+    <header style="text-align:center; margin-bottom:10px;">
+        <h1 style="margin:8px 0;">OUKETI-01</h1>
+        <div role="toolbar" aria-label="Actions" style="display:inline-flex; gap:8px; flex-wrap:wrap;">
+            <button type="button" onclick="FONT_Reinit()" title="Réinitialiser la liste">Réinitialiser</button>
+            <button type="button" onclick="clearDebug()" title="Rafraîchir la zone de texte">Rafraîchir la zone de texte</button>
+        </div>
+    </header>
+
+    <main style="display:flex; gap:20px; align-items:flex-start; justify-content:center; flex-wrap:wrap;">
+        <section id="MotsCles" aria-label="Mots clés restants" style="flex:1 1 320px; min-width:260px;">
+            Mots Clés Restants :
+        </section>
+
+        <section id="MotsChoisis" aria-label="Mots clés choisis" style="flex:1 1 320px; min-width:260px;">
+            Mots Clés Choisis :
+        </section>
+    </main>
+
+    <hr style="margin:20px 0;">
+
+    <div style="max-width:1000px; margin:0 auto; padding:0 10px;">
+
+        <div style="text-align:center; margin-top:10px;">
+            <textarea id="debug" readonly placeholder="" style="width:90%; min-height:200px; padding:10px; font-family:'Courier New', monospace; font-size:14px;
+                       border:1px solid #ccc; border-radius:5px; resize:vertical; background-color:#f8f8f8;"
+                aria-live="polite" aria-label="Journal de debug"></textarea>
+        </div>
+    </div>
+</body>
+
+</html>
