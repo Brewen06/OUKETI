@@ -1,34 +1,10 @@
 [
-    {
-        "id": "1",
-        "label": "plastique"
-    },
-    {
-        "id": "2",
-        "label": "métal"
-    },
-    {
-        "id": "3",
-        "label": "outil"
-    },
-    {
-        "id": "4",
-        "label": "jaune"
-    },
-    {
-        "id": "5",
-        "label": "rouge"
-    },
-    {
-        "id": "6",
-        "label": "bleu"
-    },
-    {
-        "id": "7",
-        "label": "vert"
-    },
-    {
-        "id": "8",
-        "label": "bois"
-    }
+    { "id": 1, "label": "plastique" },
+    { "id": 2, "label": "métal" },
+    { "id": 3, "label": "outil" },
+    { "id": 4, "label": "jaune" },
+    { "id": 5, "label": "rouge" },
+    { "id": 6, "label": "bleu" },
+    { "id": 7, "label": "vert" },
+    { "id": 8, "label": "bois" }
 ]

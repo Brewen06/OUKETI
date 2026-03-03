@@ -1,214 +1,537 @@
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
-    <title>OUKETI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OUKETI - Recherche d'objets par mots-clés</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+            --bg-light: #f8f9fa;
+            --text-muted: #6c757d;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px 0;
         }
 
-        h1 {
-            color: #333;
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .app-header {
             text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #MotsCles,
-        #MotsChoisis {
-            margin: 15px 0;
-            padding: 15px;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        button {
-            margin: 5px;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 4px;
-            background-color: #4444ff;
+            margin-bottom: 30px;
             color: white;
-            cursor: pointer;
         }
 
-        button:hover {
-            background-color: #3333dd;
+        .app-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-weight: 600;
+            padding: 15px 20px;
+            border: none;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .keyword-btn {
+            margin: 4px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .keyword-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4);
+        }
+
+        .selected-keyword {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 8px 12px 8px 16px;
+            border-radius: 20px;
+            margin: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .selected-keyword .remove-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+            font-size: 14px;
+        }
+
+        .selected-keyword .remove-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .action-btn {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search {
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            border: none;
+            color: white;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
+            color: white;
+        }
+
+        .btn-reset {
+            background: white;
+            border: 2px solid var(--warning-color);
+            color: var(--warning-color);
+        }
+
+        .btn-reset:hover {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .results-table thead th {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .results-table thead th:first-child { border-radius: 10px 0 0 0; }
+        .results-table thead th:last-child { border-radius: 0 10px 0 0; }
+
+        .results-table tbody tr:hover { background: #f0f4ff; }
+
+        .results-table tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+
+        .badge-container {
+            background: #e8f4fd;
+            color: #0077b6;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-object {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .counter-badge {
+            background: var(--warning-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
         }
 
         #debug {
-            width: 90%;
-            height: 200px;
-            margin: 20px auto;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            width: 100%;
+            min-height: 150px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            background: #1e1e1e;
+            color: #4ec9b0;
+            border: none;
+            border-radius: 0 0 10px 10px;
+            padding: 15px;
+            resize: vertical;
         }
 
-        hr {
-            border: none;
-            height: 1px;
-            background-color: #ccc;
-            margin: 20px 0;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in { animation: fadeIn 0.3s ease forwards; }
+
+        @media (max-width: 768px) {
+            .app-header h1 { font-size: 1.8rem; }
+            .action-buttons { flex-direction: column; }
+            .action-btn { width: 100%; margin-bottom: 10px; }
         }
     </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <header class="app-header">
+            <h1><i class="bi bi-search"></i> OUKETI</h1>
+            <p>Recherchez vos objets parmi les mots-clés suivants</p>
+        </header>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-tags"></i> Mots-clés</span>
+                <span class="counter-badge" id="availableCount">0</span>
+            </div>
+            <div class="card-body" id="MotsCles">
+                <div class="empty-state">
+                    <i class="bi bi-hourglass-split"></i>
+                    <p>Chargement des mots-clés...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-check2-circle"></i> Mots choisis</span>
+                <span class="counter-badge" id="selectedCount">0</span>
+            </div>
+            <div class="card-body" id="MotsChoisis">
+                <div class="empty-state">
+                    <i class="bi bi-hand-index"></i>
+                    <p>Cliquez sur les mots-clés pour obtenir des objets</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-center flex-wrap mb-4 action-buttons">
+            <button class="action-btn btn-search" onclick="buttonSendOnClick()">
+                <i class="bi bi-search"></i> Rechercher
+            </button>
+            <button class="action-btn btn-reset" onclick="resetSelection()">
+                <i class="bi bi-arrow-counterclockwise"></i> Réinitialiser
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-list-ul"></i> Résultats
+            </div>
+            <div class="card-body" id="resultatsRecherche">
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <p>Sélectionnez des mots-clés et cliquez sur "Rechercher"</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center" 
+                 style="cursor:pointer" data-bs-toggle="collapse" data-bs-target="#debugCollapse">
+                <span><i class="bi bi-terminal"></i> Debogage</span>
+                <i class="bi bi-chevron-down"></i>
+            </div>
+            <div class="collapse" id="debugCollapse">
+                <textarea id="debug" readonly placeholder="Les logs apparaîtront ici..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
     <script>
-        // éléments de l'interface
-        var debug, DIV_MotsCles, DIV_MotsChoisis;
-        var TousLesMotsCles = [];
-        var MotsCles = [];
-        var MotsChoisis = [];
+        let debug, DIV_MotsCles, DIV_MotsChoisis;
+        let TousLesMotsCles = [];
+        let MotsCles = [];
+        let MotsChoisis = [];
 
         function clearDebug() { if (debug) debug.value = ""; }
-        function write() { if (!debug) return; debug.value += Array.from(arguments).join(" "); }
-        function writeln() { if (!debug) return; debug.value += Array.from(arguments).join(" ") + "\n"; }
+        function writeln(...args) { 
+            if (debug) {
+                const timestamp = new Date().toLocaleTimeString();
+                debug.value += `[${timestamp}] ${args.join(" ")}\n`;
+                debug.scrollTop = debug.scrollHeight;
+            }
+        }
 
-        function BODY_OnLoad() {
+        document.addEventListener('DOMContentLoaded', () => {
             debug = document.getElementById("debug");
             DIV_MotsCles = document.getElementById("MotsCles");
             DIV_MotsChoisis = document.getElementById("MotsChoisis");
-            // charger le fichier JSON local (JSON_motcles.json)
-            fetch("JSON_motcles.json")
-                .then(response => {
-                    if (!response.ok) throw new Error("Échec du chargement JSON: " + response.status);
-                    return response.json();
-                })
-                .then(json => {
-                    // le fichier attendu est un tableau d'objets {id, label}
-                    TousLesMotsCles = json.map(item => ({ id: item.id, label: item.label }));
-                    init();
-                    AfficherDIVsMotsCles();
-                    AfficherDIVsMotsChoisis();
-                    writeln("JSON chargé :", json.map(i => i.id + ":" + i.label).join(", "));
-                })
-                .catch(err => writeln("Erreur:", err.message));
+            writeln("🚀 Application OUKETI initialisée");
+            chargerMotsCles();
+        });
+
+        async function chargerMotsCles() {
+            try {
+                writeln("📥 Chargement des mots-clés...");
+                const response = await fetch("JSON_motcles.json");
+                if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
+                
+                const json = await response.json();
+                TousLesMotsCles = json.map(item => ({
+                    id: Number(item.id),
+                    label: item.label || item.libelle
+                }));
+                
+                initMotsCles();
+                renderMotsCles();
+                renderMotsChoisis();
+                writeln(`✅ ${TousLesMotsCles.length} mots-clés chargés`);
+            } catch (err) {
+                writeln(`❌ Erreur: ${err.message}`);
+                DIV_MotsCles.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> Impossible de charger les mots-clés: ${err.message}</div>`;
+            }
         }
 
-        function init() {
-            MotsCles = TousLesMotsCles.slice(); // copie (références aux objets)
+        function initMotsCles() {
+            MotsCles = [...TousLesMotsCles];
             MotsChoisis = [];
         }
 
-        function AfficherDIVsMotsCles() {
-            DIV_MotsCles.innerHTML = '<abbr title="Double-cliquez pour réinitialiser">Mots Clés</abbr> : ';
-            var abbrElement = DIV_MotsCles.querySelector('abbr');
-            abbrElement.ondblclick = function () {
-                writeln("Mots-clés réinitialisés");
-                init();
-                AfficherDIVsMotsCles();
-                AfficherDIVsMotsChoisis();
+        function renderMotsCles() {
+            DIV_MotsCles.innerHTML = '';
+            document.getElementById('availableCount').textContent = MotsCles.length;
+
+            if (MotsCles.length === 0) {
+                DIV_MotsCles.innerHTML = `<div class="empty-state"><i class="bi bi-check-all"></i><p>Tous les mots-clés ont été sélectionnés</p></div>`;
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'd-flex flex-wrap';
+
+            MotsCles.forEach((motCle, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'keyword-btn fade-in';
+                btn.innerHTML = `<i class="bi bi-plus-circle"></i> ${motCle.label}`;
+                btn.onclick = () => selectionnerMotCle(idx);
+                btn.style.animationDelay = `${idx * 0.05}s`;
+                wrapper.appendChild(btn);
+            });
+
+            DIV_MotsCles.appendChild(wrapper);
+        }
+
+        function renderMotsChoisis() {
+            DIV_MotsChoisis.innerHTML = '';
+            document.getElementById('selectedCount').textContent = MotsChoisis.length;
+
+            if (MotsChoisis.length === 0) {
+                DIV_MotsChoisis.innerHTML = `<div class="empty-state"><i class="bi bi-hand-index"></i><p>Cliquez sur les mots-clés ci-dessus pour les sélectionner</p></div>`;
+                return;
+            }
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'd-flex flex-wrap align-items-center';
+
+            MotsChoisis.forEach((motCle, idx) => {
+                const badge = document.createElement('span');
+                badge.className = 'selected-keyword fade-in';
+                badge.innerHTML = `${motCle.label}<button class="remove-btn" title="Retirer"><i class="bi bi-x"></i></button>`;
+                badge.querySelector('.remove-btn').onclick = () => retirerMotCle(idx);
+                wrapper.appendChild(badge);
+            });
+
+            DIV_MotsChoisis.appendChild(wrapper);
+        }
+
+        function selectionnerMotCle(idx) {
+            const motCle = MotsCles.splice(idx, 1)[0];
+            if (motCle) {
+                MotsChoisis.push(motCle);
+                writeln(`➕ Sélectionné: "${motCle.label}" (ID: ${motCle.id})`);
+                renderMotsCles();
+                renderMotsChoisis();
+            }
+        }
+
+        function retirerMotCle(idx) {
+            const motCle = MotsChoisis.splice(idx, 1)[0];
+            if (motCle) {
+                MotsCles.push(motCle);
+                MotsCles.sort((a, b) => a.id - b.id);
+                writeln(`➖ Retiré: "${motCle.label}" (ID: ${motCle.id})`);
+                renderMotsCles();
+                renderMotsChoisis();
+            }
+        }
+
+        function resetSelection() {
+            writeln("🔄 Réinitialisation");
+            initMotsCles();
+            renderMotsCles();
+            renderMotsChoisis();
+            document.getElementById('resultatsRecherche').innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>Sélectionnez des mots-clés et cliquez sur "Rechercher"</p></div>`;
+        }
+
+        async function buttonSendOnClick() {
+            const container = document.getElementById('resultatsRecherche');
+            const motsChoisisIds = MotsChoisis.map(m => m.id);
+
+            if (motsChoisisIds.length === 0) {
+                container.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-circle"></i> Veuillez sélectionner au moins un mot-clé.</div>`;
+                writeln("⚠️ Aucun mot-clé sélectionné");
+                return;
+            }
+
+            writeln(`🔍 Recherche avec IDs: [${motsChoisisIds.join(', ')}]`);
+            container.innerHTML = `<div class="text-center p-4"><div class="spinner-border text-primary"></div></div>`;
+
+            try {
+                const response = await fetch(`tous_les_mots_cles.php?search_ids=${encodeURIComponent(motsChoisisIds.join(','))}`);
+                if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
+                
+                const objets = await response.json();
+                if (objets.error) throw new Error(objets.error);
+                
+                writeln(`✅ ${objets.length} objet(s) trouvé(s)`);
+                renderResultats(objets);
+            } catch (error) {
+                writeln(`❌ Erreur: ${error.message}`);
+                container.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> ${error.message}</div>`;
+            }
+        }
+
+        function renderResultats(objets) {
+            const container = document.getElementById('resultatsRecherche');
+            container.innerHTML = '';
+
+            if (!objets || objets.length === 0) {
+                container.innerHTML = `<div class="empty-state"><i class="bi bi-search"></i><p>Aucun objet ne correspond à ces critères</p></div>`;
+                return;
+            }
+
+            // Mapping des noms d'objets vers les images
+            const imagesObjets = {
+                'tournevis': 'images/tournevis jaune.jpg',
+                'marteau': 'images/marteau.jpg',
+                'scie': 'images/scie.jpg',
+                'pinceau': 'images/pinceau.jpg',
+                'clous': 'images/clous.jpg',
+                'boîte-1': 'images/boite.jpg',
+                'boîte-2': 'images/boite.jpg'
             };
 
-            for (var i = 0; i < MotsCles.length; i++) {
-                var motCle = MotsCles[i];
-                if (motCle != null) {
-                    const bouton = document.createElement("button");
-                    // afficher l'id de l'objet suivi du label
-                    bouton.textContent = motCle.id + ' - ' + motCle.label;
-                    bouton.dataset.idx = i;
-                    bouton.onclick = button_OnClick;
-                    DIV_MotsCles.appendChild(bouton);
-                }
+            function getImageForObjet(nom) {
+                if (!nom) return null;
+                const nomLower = nom.toLowerCase();
+                return imagesObjets[nomLower] || null;
             }
-        }
 
-        function AfficherDIVsMotsChoisis() {
-            DIV_MotsChoisis.innerHTML = 'Mots Choisis : ';
-            for (var i = 0; i < MotsChoisis.length; i++) {
-                var motCle = MotsChoisis[i];
-                if (motCle != null) {
-                    const bouton = document.createElement("button");
-                    // afficher l'id de l'objet suivi du label
-                    bouton.textContent = motCle.id + ' - ' + motCle.label;
-                    bouton.dataset.idx = i;
-                    bouton.onclick = button_OnClick;
-                    DIV_MotsChoisis.appendChild(bouton);
-                }
-            }
-        }
+            const table = document.createElement('table');
+            table.className = 'results-table';
+            table.innerHTML = `
+                <thead><tr>
+                    <th><i class="bi bi-image"></i> Image</th>
+                    <th><i class="bi bi-hash"></i> ID</th>
+                    <th><i class="bi bi-box"></i> Nom</th>
+                    <th><i class="bi bi-123"></i> Quantité</th>
+                    <th><i class="bi bi-tag"></i> Type</th>
+                    <th><i class="bi bi-folder"></i> Conteneur</th>
+                </tr></thead><tbody></tbody>`;
 
-        function AfficherID_MotsCles() {
-            if (!DIV_MotsCles || !DIV_MotsChoisis) return;
-            [DIV_MotsCles, DIV_MotsChoisis].forEach(function (div) {
-                var buttons = div.querySelectorAll('button');
-                Array.prototype.forEach.call(buttons, function (btn) {
-                    if (btn.dataset.idx === undefined) return;
-                    var idx = Number(btn.dataset.idx);
-                    var arr = (div.id === "MotsCles") ? MotsCles : MotsChoisis;
-                    var obj = arr[idx];
-                    if (obj) {
-                        btn.textContent = obj.id + ' - ' + obj.label;
-                    }
-                });
+            const tbody = table.querySelector('tbody');
+            objets.forEach((item, i) => {
+                const estConteneur = item.estConteneur;
+                const estContenuDans = item.estContenuDans;
+                const imagePath = getImageForObjet(item.nom);
+                const row = document.createElement('tr');
+                row.className = 'fade-in';
+                row.style.animationDelay = `${i * 0.05}s`;
+                row.innerHTML = `
+                    <td style="width: 80px;">
+                        ${imagePath 
+                            ? `<img src="${imagePath}" alt="${item.nom}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                               <div style="display:none; width:60px; height:60px; background:#f0f0f0; border-radius:8px; align-items:center; justify-content:center;"><i class="bi bi-image text-muted"></i></div>`
+                            : `<div style="width:60px; height:60px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center;"><i class="bi bi-image text-muted"></i></div>`
+                        }
+                    </td>
+                    <td><strong>#${item.id}</strong></td>
+                    <td>${item.nom || '-'}</td>
+                    <td>${item.quantite ?? 1}</td>
+                    <td><span class="badge-container ${estConteneur ? '' : 'badge-object'}"><i class="bi bi-${estConteneur ? 'box-seam' : 'circle'}"></i> ${estConteneur ? 'Conteneur' : 'Objet'}</span></td>
+                    <td>${estContenuDans ? `Dans <strong>#${estContenuDans}</strong>` : '<em class="text-muted">Aucun</em>'}</td>`;
+                tbody.appendChild(row);
             });
+
+            container.appendChild(table);
         }
 
-        function button_OnClick() {
-            const idx = Number(this.dataset.idx);
-            const parentId = this.parentElement.id;
-            if (parentId === "MotsCles") {
-                const item = MotsCles.splice(idx, 1)[0];
-                if (item !== undefined) {
-                    MotsChoisis.push(item);
-                    writeln("MotsCles -> MotsChoisis :", item.id + " " + item.label);
-                }
-            } else if (parentId === "MotsChoisis") {
-                const item = MotsChoisis.splice(idx, 1)[0];
-                if (item !== undefined) {
-                    MotsCles.push(item);
-                    writeln("MotsChoisis -> MotsCles :", item.id + " " + item.label);
-                }
-            }
-            AfficherDIVsMotsCles();
-            AfficherDIVsMotsChoisis();
-        }
-
-        function FONT_Reinit() {
-            writeln("Réinitialisation demandée");
-            init();
-            AfficherDIVsMotsCles();
-            AfficherDIVsMotsChoisis();
-        }
-
-        function buttonSendOnClick() {
-            writeln("Envoi des mots-clés sélectionnés : " + MotsChoisis.map(i => i.label).join(", "));
+        function detailsobjet(id) {
+            alert(`Détails de l'objet ID: ${id}`);
+            
         }
     </script>
-
-</head>
-
-<body onload="BODY_OnLoad()">
-    <header style="text-align:center; margin-bottom:10px;">
-        <h1 style="margin:8px 0;">OUKETI-01</h1>
-        <div role="toolbar" aria-label="Actions" style="display:inline-flex; gap:8px; flex-wrap:wrap;">
-            <button type="button" onclick="FONT_Reinit()" title="Réinitialiser la liste">Réinitialiser</button>
-            <button type="button" onclick="clearDebug()" title="Rafraîchir la zone de texte">Rafraîchir la zone de texte</button>
-        </div>
-    </header>
-
-    <main style="display:flex; gap:20px; align-items:flex-start; justify-content:center; flex-wrap:wrap;">
-        <section id="MotsCles" aria-label="Mots clés restants" style="flex:1 1 320px; min-width:260px;">
-            Mots Clés Restants :
-        </section>
-
-        <section id="MotsChoisis" aria-label="Mots clés choisis" style="flex:1 1 320px; min-width:260px;">
-            Mots Clés Choisis :
-        </section>
-    </main>
-
-    <hr style="margin:20px 0;">
-
-    <div style="max-width:1000px; margin:0 auto; padding:0 10px;">
-
-        <div style="text-align:center; margin-top:10px;">
-            <textarea id="debug" readonly placeholder="" style="width:90%; min-height:200px; padding:10px; font-family:'Courier New', monospace; font-size:14px;
-                       border:1px solid #ccc; border-radius:5px; resize:vertical; background-color:#f8f8f8;"
-                aria-live="polite" aria-label="Journal de debug"></textarea>
-        </div>
-    </div>
 </body>
 
 </html>
