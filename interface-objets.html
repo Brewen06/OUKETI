@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interface Objets</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Interface Objets</h1>
+    <p>Cette page présente une interface pour la gestion des objets dans notre application.</p>
+    
+    <div class="container">
+        <h2>Ajouter un Objet</h2>
+        <form id="addForm">
+            <input type="text" id="objName" placeholder="Nom de l'objet" required>
+            <input type="text" id="objKeywords" placeholder="Mots-clés (séparés par des virgules)" required>
+            <button type="submit">Ajouter</button>
+        </form>
+
+        <h2>Liste des Objets</h2>
+        <div id="searchBox">
+            <input type="text" id="searchInput" placeholder="Rechercher par mot-clé...">
+        </div>
+        
+        <ul id="objectList"></ul>
+    </div>
+
+    <script>
+        let objects = [];
+
+        document.getElementById('addForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('objName').value;
+            const keywords = document.getElementById('objKeywords').value.split(',').map(k => k.trim());
+            objects.push({ id: Date.now(), name, keywords });
+            document.getElementById('objName').value = '';
+            document.getElementById('objKeywords').value = '';
+            displayObjects(objects);
+        });
+
+        function displayObjects(list) {
+            const objectList = document.getElementById('objectList');
+            objectList.innerHTML = '';
+            list.forEach(obj => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${obj.name}</strong> - ${obj.keywords.join(', ')} 
+                    <button onclick="editObject(${obj.id})">Modifier</button>
+                    <button onclick="deleteObject(${obj.id})">Supprimer</button>`;
+                objectList.appendChild(li);
+            });
+        }
+
+        function deleteObject(id) {
+            objects = objects.filter(obj => obj.id !== id);
+            displayObjects(objects);
+        }
+
+        function editObject(id) {
+            const obj = objects.find(o => o.id === id);
+            document.getElementById('objName').value = obj.name;
+            document.getElementById('objKeywords').value = obj.keywords.join(', ');
+            deleteObject(id);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase();
+            const filtered = objects.filter(obj => 
+                obj.keywords.some(k => k.toLowerCase().includes(keyword))
+            );
+            displayObjects(filtered);
+        });
+    </script>
+</body>
+</html>

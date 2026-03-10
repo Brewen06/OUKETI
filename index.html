@@ -10,230 +10,353 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
-            --bg-light: #f8f9fa;
-            --text-muted: #6c757d;
+            --ink-900: #0f172a;
+            --ink-700: #334155;
+            --ink-500: #64748b;
+            --surface-0: #f1f5f9;
+            --surface-1: #ffffff;
+            --surface-2: #eef2ff;
+            --line: #e2e8f0;
+            --brand: #0f766e;
+            --brand-strong: #115e59;
+            --brand-soft: #ccfbf1;
+            --danger: #be123c;
+            --danger-soft: #ffe4e6;
+            --shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: "Segoe UI", "Inter", "Trebuchet MS", sans-serif;
+            color: var(--ink-900);
+            background:
+                radial-gradient(circle at 8% 12%, #d1fae5 0, transparent 40%),
+                radial-gradient(circle at 92% 6%, #dbeafe 0, transparent 38%),
+                linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
             min-height: 100vh;
-            padding: 20px 0;
+            padding: 24px 0;
         }
 
         .main-container {
-            max-width: 1200px;
+            max-width: 1120px;
             margin: 0 auto;
-            padding: 0 15px;
+            padding: 0 16px;
         }
 
         .app-header {
             text-align: center;
-            margin-bottom: 30px;
-            color: white;
+            margin-bottom: 24px;
         }
 
         .app-header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            margin-bottom: 6px;
+            color: #0b3b36;
         }
 
         .app-header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
+            margin: 0;
+            color: var(--ink-700);
+            font-size: 1rem;
         }
 
         .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            margin-bottom: 20px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+            background: var(--surface-1);
             overflow: hidden;
         }
 
         .card-header {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            font-weight: 600;
-            padding: 15px 20px;
-            border: none;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--line);
+            color: var(--ink-900);
+            font-weight: 700;
+            padding: 14px 18px;
         }
 
         .card-body {
-            padding: 20px;
+            padding: 18px;
+        }
+
+        .counter-badge {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-radius: 999px;
+            padding: 2px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        #keywordInput {
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            padding: 10px 12px;
+        }
+
+        #keywordInput:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 0.22rem rgba(20, 184, 166, 0.2);
+        }
+
+        #keywordSubmitBtn {
+            background: var(--brand);
+            border-color: var(--brand);
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        #keywordSubmitBtn:hover {
+            background: var(--brand-strong);
+            border-color: var(--brand-strong);
+        }
+
+        #keywordCancelBtn {
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .keyword-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+            background: #fcfdff;
+            border: 1px solid #dbe2ea;
+            border-radius: 14px;
+            padding: 8px;
         }
 
         .keyword-btn {
-            margin: 4px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            border: 2px solid var(--primary-color);
-            background: white;
-            color: var(--primary-color);
+            margin: 0;
+            width: 100%;
+            min-height: 42px;
+            text-align: left;
+            padding: 9px 12px;
+            border: 1px solid #cdd8e7;
+            border-radius: 10px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            color: var(--ink-900);
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: transform 0.12s ease, box-shadow 0.16s ease, border-color 0.16s ease;
         }
 
         .keyword-btn:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.4);
+            transform: translateY(-1px);
+            border-color: #14b8a6;
+            box-shadow: 0 3px 10px rgba(20, 184, 166, 0.16);
+            color: #0b3b36;
+        }
+
+        .keyword-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .keyword-actions .btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-width: 1px;
         }
 
         .selected-keyword {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            padding: 8px 12px 8px 16px;
-            border-radius: 20px;
+            background: var(--surface-2);
+            color: #1e293b;
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
             margin: 4px;
+            padding: 7px 10px 7px 12px;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             font-size: 0.9rem;
+            font-weight: 600;
         }
 
+        .selected-keyword .action-mini,
         .selected-keyword .remove-btn {
-            background: rgba(255, 255, 255, 0.3);
-            border: none;
-            border-radius: 50%;
             width: 22px;
             height: 22px;
-            display: flex;
+            border-radius: 999px;
+            border: 1px solid #bfdbfe;
+            background: #ffffff;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            color: #1d4ed8;
+            font-size: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            color: white;
-            font-size: 14px;
+            transition: background 0.16s ease;
         }
 
+        .selected-keyword .action-mini:hover,
         .selected-keyword .remove-btn:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: #eff6ff;
         }
 
         .action-btn {
-            border-radius: 25px;
-            padding: 10px 25px;
-            font-weight: 500;
-            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            border: 1px solid transparent;
+            transition: transform 0.12s ease, box-shadow 0.16s ease;
         }
 
         .btn-search {
-            background: linear-gradient(90deg, #4cc9f0, #4361ee);
-            border: none;
-            color: white;
+            background: #0f766e;
+            border-color: #0f766e;
+            color: #fff;
         }
 
         .btn-search:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4);
-            color: white;
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(15, 118, 110, 0.3);
+            background: #115e59;
+            border-color: #115e59;
         }
 
         .btn-reset {
-            background: white;
-            border: 2px solid var(--warning-color);
-            color: var(--warning-color);
+            background: #fff;
+            border-color: #cbd5e1;
+            color: #334155;
         }
 
         .btn-reset:hover {
-            background: var(--warning-color);
-            color: white;
+            background: #f8fafc;
+            border-color: #94a3b8;
+            color: #0f172a;
         }
 
         .results-table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
         }
 
         .results-table thead th {
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 15px;
-            font-weight: 600;
+            background: #f8fafc;
+            color: var(--ink-700);
+            padding: 12px;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            font-size: 0.76rem;
+            border-bottom: 1px solid var(--line);
         }
 
-        .results-table thead th:first-child { border-radius: 10px 0 0 0; }
-        .results-table thead th:last-child { border-radius: 0 10px 0 0; }
+        .results-table tbody tr:nth-child(even) {
+            background: #fcfdff;
+        }
 
-        .results-table tbody tr:hover { background: #f0f4ff; }
+        .results-table tbody tr:hover {
+            background: #f1f5f9;
+        }
 
         .results-table tbody td {
-            padding: 12px 15px;
-            border-bottom: 1px solid #eee;
+            padding: 11px 12px;
+            border-bottom: 1px solid #eef2f7;
             vertical-align: middle;
         }
 
         .badge-container {
-            background: #e8f4fd;
-            color: #0077b6;
+            background: var(--brand-soft);
+            color: #115e59;
+            border: 1px solid #99f6e4;
             padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 500;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
         }
 
         .badge-object {
-            background: #f0fdf4;
-            color: #15803d;
-        }
-
-        .counter-badge {
-            background: var(--warning-color);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-left: 8px;
+            background: #dcfce7;
+            color: #166534;
+            border-color: #86efac;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--text-muted);
+            padding: 32px 20px;
+            color: var(--ink-500);
         }
 
         .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
+            font-size: 2.4rem;
+            margin-bottom: 10px;
+            opacity: 0.65;
         }
 
         #debug {
             width: 100%;
             min-height: 150px;
-            font-family: 'Consolas', monospace;
+            font-family: Consolas, "Courier New", monospace;
             font-size: 12px;
-            background: #1e1e1e;
-            color: #4ec9b0;
+            background: #0b1220;
+            color: #34d399;
             border: none;
-            border-radius: 0 0 10px 10px;
-            padding: 15px;
+            border-radius: 0;
+            padding: 14px;
             resize: vertical;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .fade-in { animation: fadeIn 0.3s ease forwards; }
+        .fade-in {
+            animation: fadeIn 0.24s ease forwards;
+        }
+
+        @media (max-width: 900px) {
+            .results-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+        }
 
         @media (max-width: 768px) {
-            .app-header h1 { font-size: 1.8rem; }
-            .action-buttons { flex-direction: column; }
-            .action-btn { width: 100%; margin-bottom: 10px; }
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+
+            .keyword-row {
+                grid-template-columns: 1fr;
+            }
+
+            .keyword-actions {
+                justify-content: flex-end;
+            }
         }
     </style>
 </head>
@@ -250,10 +373,27 @@
                 <span><i class="bi bi-tags"></i> Mots-clés</span>
                 <span class="counter-badge" id="availableCount">0</span>
             </div>
-            <div class="card-body" id="MotsCles">
-                <div class="empty-state">
-                    <i class="bi bi-hourglass-split"></i>
-                    <p>Chargement des mots-clés...</p>
+            <div class="card-body">
+                <form id="keywordForm" class="row g-2 mb-3">
+                    <input type="hidden" id="keywordId">
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="keywordInput" placeholder="Nouveau mot-clé" required maxlength="20">
+                    </div>
+                    <div class="col-md-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1" id="keywordSubmitBtn">
+                            <i class="bi bi-plus-circle"></i> Ajouter
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary d-none" id="keywordCancelBtn">
+                            Annuler
+                        </button>
+                    </div>
+                </form>
+                <div id="keywordFeedback"></div>
+                <div id="MotsCles">
+                    <div class="empty-state">
+                        <i class="bi bi-hourglass-split"></i>
+                        <p>Chargement des mots-clés...</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -310,6 +450,7 @@
 
     <script>
         let debug, DIV_MotsCles, DIV_MotsChoisis;
+        let keywordForm, keywordInput, keywordId, keywordSubmitBtn, keywordCancelBtn, keywordFeedback;
         let TousLesMotsCles = [];
         let MotsCles = [];
         let MotsChoisis = [];
@@ -327,14 +468,24 @@
             debug = document.getElementById("debug");
             DIV_MotsCles = document.getElementById("MotsCles");
             DIV_MotsChoisis = document.getElementById("MotsChoisis");
+            keywordForm = document.getElementById('keywordForm');
+            keywordInput = document.getElementById('keywordInput');
+            keywordId = document.getElementById('keywordId');
+            keywordSubmitBtn = document.getElementById('keywordSubmitBtn');
+            keywordCancelBtn = document.getElementById('keywordCancelBtn');
+            keywordFeedback = document.getElementById('keywordFeedback');
+
+            keywordForm.addEventListener('submit', onKeywordSubmit);
+            keywordCancelBtn.addEventListener('click', resetKeywordForm);
+
             writeln("🚀 Application OUKETI initialisée");
             chargerMotsCles();
         });
 
-        async function chargerMotsCles() {
+        async function chargerMotsCles(conserverSelection = false) {
             try {
                 writeln("📥 Chargement des mots-clés...");
-                const response = await fetch("JSON_motcles.json");
+                const response = await fetch("gestion_mots_cles.php");
                 if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
                 
                 const json = await response.json();
@@ -342,8 +493,13 @@
                     id: Number(item.id),
                     label: item.label || item.libelle
                 }));
-                
-                initMotsCles();
+
+                if (conserverSelection) {
+                    synchroniserSelections();
+                } else {
+                    initMotsCles();
+                }
+
                 renderMotsCles();
                 renderMotsChoisis();
                 writeln(`✅ ${TousLesMotsCles.length} mots-clés chargés`);
@@ -358,6 +514,101 @@
             MotsChoisis = [];
         }
 
+        function synchroniserSelections() {
+            const byId = new Map(TousLesMotsCles.map(m => [m.id, m]));
+            MotsChoisis = MotsChoisis.filter(m => byId.has(m.id)).map(m => byId.get(m.id));
+            const selectedIds = new Set(MotsChoisis.map(m => m.id));
+            MotsCles = TousLesMotsCles.filter(m => !selectedIds.has(m.id));
+        }
+
+        function setKeywordFeedback(message, type = 'success') {
+            keywordFeedback.innerHTML = `<div class="alert alert-${type} py-2 mb-3">${message}</div>`;
+        }
+
+        function resetKeywordForm(clearFeedback = true) {
+            keywordId.value = '';
+            keywordInput.value = '';
+            keywordSubmitBtn.innerHTML = '<i class="bi bi-plus-circle"></i> Ajouter';
+            keywordCancelBtn.classList.add('d-none');
+            if (clearFeedback) {
+                keywordFeedback.innerHTML = '';
+            }
+        }
+
+        async function onKeywordSubmit(event) {
+            event.preventDefault();
+            const libelle = keywordInput.value.trim();
+            const id = Number(keywordId.value || 0);
+
+            if (!libelle) {
+                setKeywordFeedback('Le libelle du mot-cle est obligatoire.', 'warning');
+                return;
+            }
+
+            try {
+                const isEdit = id > 0;
+                const response = await fetch('gestion_mots_cles.php', {
+                    method: isEdit ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(isEdit ? { id, libelle } : { libelle })
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erreur lors de la sauvegarde.');
+                }
+
+                resetKeywordForm(false);
+                setKeywordFeedback(result.message || (isEdit ? 'Mot-cle modifie.' : 'Mot-cle ajoute.'));
+                writeln(isEdit ? `✏️ Mot-cle modifie: ${libelle}` : `➕ Mot-cle ajoute: ${libelle}`);
+                await chargerMotsCles(true);
+            } catch (error) {
+                setKeywordFeedback(error.message, 'danger');
+                writeln(`❌ Erreur CRUD: ${error.message}`);
+            }
+        }
+
+        function startEditMotCle(id) {
+            const motCle = TousLesMotsCles.find(m => m.id === id);
+            if (!motCle) return;
+
+            keywordId.value = motCle.id;
+            keywordInput.value = motCle.label;
+            keywordSubmitBtn.innerHTML = '<i class="bi bi-pencil"></i> Modifier';
+            keywordCancelBtn.classList.remove('d-none');
+            keywordFeedback.innerHTML = '';
+            keywordInput.focus();
+            writeln(`✏️ Edition du mot-cle ID ${motCle.id}`);
+        }
+
+        async function supprimerMotCle(id) {
+            const motCle = TousLesMotsCles.find(m => m.id === id);
+            if (!motCle) return;
+
+            if (!confirm(`Supprimer le mot-cle \"${motCle.label}\" ?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`gestion_mots_cles.php?id=${encodeURIComponent(id)}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                if (!response.ok) {
+                    throw new Error(result.error || 'Suppression impossible.');
+                }
+
+                resetKeywordForm(false);
+                setKeywordFeedback(result.message || 'Mot-cle supprime.');
+                writeln(`🗑️ Mot-cle supprime: ${motCle.label}`);
+                await chargerMotsCles(true);
+            } catch (error) {
+                setKeywordFeedback(error.message, 'danger');
+                writeln(`❌ Erreur suppression: ${error.message}`);
+            }
+        }
+
         function renderMotsCles() {
             DIV_MotsCles.innerHTML = '';
             document.getElementById('availableCount').textContent = MotsCles.length;
@@ -368,15 +619,32 @@
             }
 
             const wrapper = document.createElement('div');
-            wrapper.className = 'd-flex flex-wrap';
+            wrapper.className = 'd-flex flex-column';
 
             MotsCles.forEach((motCle, idx) => {
+                const row = document.createElement('div');
+                row.className = 'keyword-row fade-in';
+                row.style.animationDelay = `${idx * 0.05}s`;
+
                 const btn = document.createElement('button');
-                btn.className = 'keyword-btn fade-in';
+                btn.className = 'keyword-btn';
                 btn.innerHTML = `<i class="bi bi-plus-circle"></i> ${motCle.label}`;
                 btn.onclick = () => selectionnerMotCle(idx);
-                btn.style.animationDelay = `${idx * 0.05}s`;
-                wrapper.appendChild(btn);
+
+                const actions = document.createElement('div');
+                actions.className = 'keyword-actions';
+                actions.innerHTML = `
+                    <button class="btn btn-outline-primary" title="Modifier" onclick="startEditMotCle(${motCle.id})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-outline-danger" title="Supprimer" onclick="supprimerMotCle(${motCle.id})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                `;
+
+                row.appendChild(btn);
+                row.appendChild(actions);
+                wrapper.appendChild(row);
             });
 
             DIV_MotsCles.appendChild(wrapper);
@@ -397,7 +665,12 @@
             MotsChoisis.forEach((motCle, idx) => {
                 const badge = document.createElement('span');
                 badge.className = 'selected-keyword fade-in';
-                badge.innerHTML = `${motCle.label}<button class="remove-btn" title="Retirer"><i class="bi bi-x"></i></button>`;
+                badge.innerHTML = `${motCle.label}
+                    <button class="action-mini" title="Modifier"><i class="bi bi-pencil"></i></button>
+                    <button class="action-mini" title="Supprimer"><i class="bi bi-trash"></i></button>
+                    <button class="remove-btn" title="Retirer"><i class="bi bi-x"></i></button>`;
+                badge.querySelectorAll('.action-mini')[0].onclick = () => startEditMotCle(motCle.id);
+                badge.querySelectorAll('.action-mini')[1].onclick = () => supprimerMotCle(motCle.id);
                 badge.querySelector('.remove-btn').onclick = () => retirerMotCle(idx);
                 wrapper.appendChild(badge);
             });
@@ -471,21 +744,91 @@
                 return;
             }
 
-            // Mapping des noms d'objets vers les images
-            const imagesObjets = {
-                'tournevis': 'images/tournevis jaune.jpg',
-                'marteau': 'images/marteau.jpg',
-                'scie': 'images/scie.jpg',
-                'pinceau': 'images/pinceau.jpg',
-                'clous': 'images/clous.jpg',
-                'boîte-1': 'images/boite.jpg',
-                'boîte-2': 'images/boite.jpg'
+            const imageCatalog = {
+                objet: [
+                    'Clou rouge en métal.jpg',
+                    'Clou vert en métal.jpg',
+                    'Marteau jaune en métal.jpg',
+                    'Marteau jaune en plastique.jpg',
+                    'Marteau vert en métal.jpg',
+                    'Marteau vert en plastique.jpg',
+                    'pinceau bleu en bois.jpg',
+                    'pinceau bleu en plastique.jpg',
+                    'pinceau jaune en bois.jpg',
+                    'pinceau jaune en plastique.jpg',
+                    'pinceau rouge en bois.jpg',
+                    'pinceau rouge en plastique.jpg',
+                    'pinceau vert en bois.jpg',
+                    'pinceau vert en plastique.jpg',
+                    'Scie bleu en métal.jpg',
+                    'tournevis jaune en plastique.jpg'
+                ],
+                conteneur: [
+                    'boîte-1 rouge en métal.jpg',
+                    'boîte-2 bleue en bois.jpg',
+                    'boîte-2 bleue en métal.jpg',
+                    'boîte-2 verte en bois.jpg',
+                    'boîte-2 verte en métal.jpg'
+                ]
             };
 
-            function getImageForObjet(nom) {
-                if (!nom) return null;
-                const nomLower = nom.toLowerCase();
-                return imagesObjets[nomLower] || null;
+            const colorAliases = {
+                jaune: 'jaune',
+                rouge: 'rouge',
+                bleu: 'bleu',
+                bleue: 'bleu',
+                vert: 'vert',
+                verte: 'vert'
+            };
+
+            function normalizeText(value) {
+                return String(value || '')
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^a-z0-9]+/g, ' ')
+                    .trim();
+            }
+
+            function canonicalColor(value) {
+                return colorAliases[normalizeText(value)] || null;
+            }
+
+            function findSelectedConstraint() {
+                const selected = MotsChoisis.map(m => normalizeText(m.label));
+                const material = selected.find(v => ['metal', 'plastique', 'bois'].includes(v)) || null;
+                const color = selected.map(canonicalColor).find(Boolean) || null;
+                return { material, color };
+            }
+
+            function getImageForObjet(item) {
+                if (!item || !item.nom) return null;
+
+                const folder = item.estConteneur ? 'conteneur' : 'objet';
+                const candidates = imageCatalog[folder] || [];
+                const nomNorm = normalizeText(item.nom);
+                const { material, color } = findSelectedConstraint();
+
+                const scored = candidates
+                    .map(fileName => {
+                        const noExt = fileName.replace(/\.jpg$/i, '');
+                        const normalized = normalizeText(noExt);
+                        if (!normalized.includes(nomNorm)) return null;
+
+                        const tokens = normalized.split(' ');
+                        const candidateColor = tokens.map(canonicalColor).find(Boolean);
+                        const candidateMaterial = tokens.find(v => ['metal', 'plastique', 'bois'].includes(v)) || null;
+
+                        let score = 1;
+                        if (color && candidateColor === color) score += 2;
+                        if (material && candidateMaterial === material) score += 2;
+
+                        return { fileName, score };
+                    })
+                    .filter(Boolean)
+                    .sort((a, b) => b.score - a.score);
+
+                return scored.length > 0 ? `images/${folder}/${scored[0].fileName}` : null;
             }
 
             const table = document.createElement('table');
@@ -504,14 +847,14 @@
             objets.forEach((item, i) => {
                 const estConteneur = item.estConteneur;
                 const estContenuDans = item.estContenuDans;
-                const imagePath = getImageForObjet(item.nom);
+                const imagePath = getImageForObjet(item);
                 const row = document.createElement('tr');
                 row.className = 'fade-in';
                 row.style.animationDelay = `${i * 0.05}s`;
                 row.innerHTML = `
                     <td style="width: 80px;">
                         ${imagePath 
-                            ? `<img src="${imagePath}" alt="${item.nom}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                     ? `<img src="${encodeURI(imagePath)}" alt="${item.nom}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                <div style="display:none; width:60px; height:60px; background:#f0f0f0; border-radius:8px; align-items:center; justify-content:center;"><i class="bi bi-image text-muted"></i></div>`
                             : `<div style="width:60px; height:60px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center;"><i class="bi bi-image text-muted"></i></div>`
                         }
@@ -530,6 +873,10 @@
         function detailsobjet(id) {
             alert(`Détails de l'objet ID: ${id}`);
             
+        }
+
+        function detailsconteneur(id) {
+            alert(`Détails du conteneur ID: ${id}`);
         }
     </script>
 </body>
