@@ -7,16 +7,20 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <p><a href="index.html">Retour a l'index</a></p>
     <h1>Interface Objets</h1>
     <p>Cette page présente une interface pour la gestion des objets dans notre application.</p>
     
     <div class="container">
         <h2>Ajouter un Objet</h2>
         <form id="addForm">
-            <input type="text" id="objName" placeholder="Nom de l'objet" required>
-            <input type="text" id="objKeywords" placeholder="Mots-clés (séparés par des virgules)" required>
-            <button type="submit">Ajouter</button>
+            <input type="text" id="objName" placeholder="Nom de l'objet" required minlength="2" maxlength="80" autocomplete="off">
+            <input type="text" id="objKeywords" placeholder="Mots-clés (séparés par des virgules)" required autocomplete="off">
+            <button type="submit" id="submitBtn">Ajouter</button>
+            <button type="button" id="cancelEditBtn" hidden>Annuler</button>
         </form>
+        <p id="formHint">Exemple: bureau, bois, rangement</p>
+        <p id="formMessage" aria-live="polite"></p>
 
         <h2>Liste des Objets</h2>
         <div id="searchBox">
@@ -27,49 +31,192 @@
     </div>
 
     <script>
-        let objects = [];
+        const STORAGE_KEY = 'objets.interface.v1';
+        let objects = loadObjects();
+        let editingId = null;
 
-        document.getElementById('addForm').addEventListener('submit', function(e) {
+        const addForm = document.getElementById('addForm');
+        const objNameInput = document.getElementById('objName');
+        const objKeywordsInput = document.getElementById('objKeywords');
+        const searchInput = document.getElementById('searchInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const formMessage = document.getElementById('formMessage');
+
+        function addFormaddEventLidesubmit(e) {
             e.preventDefault();
-            const name = document.getElementById('objName').value;
-            const keywords = document.getElementById('objKeywords').value.split(',').map(k => k.trim());
-            objects.push({ id: Date.now(), name, keywords });
-            document.getElementById('objName').value = '';
-            document.getElementById('objKeywords').value = '';
-            displayObjects(objects);
+
+            const name = objNameInput.value.trim();
+            const keywords = normalizeKeywords(objKeywordsInput.value);
+            const validationError = validateForm(name, keywords);
+
+            if (validationError) {
+                showMessage(validationError, true);
+                return;
+            }
+
+            if (editingId !== null) {
+                objects = objects.map(obj => obj.id === editingId ? { id: obj.id, name, keywords } : obj);
+                showMessage('Objet modifie avec succes.');
+            } else {
+                objects.push({ id: Date.now(), name, keywords });
+                showMessage('Objet ajoute avec succes.');
+            }
+
+            persistObjects();
+            resetForm();
+            refreshList();
+        };
+
+        cancelEditBtn.addEventListener('click', function() {
+            resetForm();
+            showMessage('Modification annulee.');
         });
+
+        searchInput.addEventListener('input', function(e) {
+            const keyword = e.target.value.toLowerCase().trim();
+            if (!keyword) {
+                displayObjects(objects);
+                return;
+            }
+
+            const filtered = objects.filter(obj =>
+                obj.keywords.some(k => k.toLowerCase().includes(keyword))
+            );
+            displayObjects(filtered);
+        });
+
+        function refreshList() {
+            const query = searchInput.value.toLowerCase().trim();
+            if (!query) {
+                displayObjects(objects);
+                return;
+            }
+
+            const filtered = objects.filter(obj =>
+                obj.keywords.some(k => k.toLowerCase().includes(query))
+            );
+            displayObjects(filtered);
+        }
+
+        function normalizeKeywords(rawValue) {
+            return [...new Set(
+                rawValue
+                    .split(',')
+                    .map(k => k.trim().toLowerCase())
+                    .filter(Boolean)
+            )];
+        }
+
+        function validateForm(name, keywords) {
+            if (name.length < 2) {
+                return 'Le nom doit contenir au moins 2 caracteres.';
+            }
+
+            if (keywords.length === 0) {
+                return 'Ajoute au moins un mot-cle valide.';
+            }
+
+            const duplicate = objects.find(obj =>
+                obj.name.toLowerCase() === name.toLowerCase() && obj.id !== editingId
+            );
+
+            if (duplicate) {
+                return 'Un objet avec ce nom existe deja.';
+            }
+
+            return '';
+        }
 
         function displayObjects(list) {
             const objectList = document.getElementById('objectList');
             objectList.innerHTML = '';
+
+            if (list.length === 0) {
+                objectList.innerHTML = '<li>Aucun objet trouve.</li>';
+                return;
+            }
+
             list.forEach(obj => {
                 const li = document.createElement('li');
-                li.innerHTML = `<strong>${obj.name}</strong> - ${obj.keywords.join(', ')} 
-                    <button onclick="editObject(${obj.id})">Modifier</button>
-                    <button onclick="deleteObject(${obj.id})">Supprimer</button>`;
+                const title = document.createElement('strong');
+                title.textContent = obj.name;
+                const text = document.createTextNode(' - ' + obj.keywords.join(', ') + ' ');
+
+                const editBtn = document.createElement('button');
+                editBtn.type = 'button';
+                editBtn.textContent = 'Modifier';
+                editBtn.addEventListener('click', function() {
+                    editObject(obj.id);
+                });
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.type = 'button';
+                deleteBtn.textContent = 'Supprimer';
+                deleteBtn.addEventListener('click', function() {
+                    deleteObject(obj.id);
+                });
+
+                li.appendChild(title);
+                li.appendChild(text);
+                li.appendChild(editBtn);
+                li.appendChild(deleteBtn);
                 objectList.appendChild(li);
             });
         }
 
         function deleteObject(id) {
             objects = objects.filter(obj => obj.id !== id);
-            displayObjects(objects);
+            persistObjects();
+            refreshList();
+
+            if (editingId === id) {
+                resetForm();
+            }
         }
 
         function editObject(id) {
             const obj = objects.find(o => o.id === id);
-            document.getElementById('objName').value = obj.name;
-            document.getElementById('objKeywords').value = obj.keywords.join(', ');
-            deleteObject(id);
+            if (!obj) {
+                return;
+            }
+
+            editingId = id;
+            objNameInput.value = obj.name;
+            objKeywordsInput.value = obj.keywords.join(', ');
+            submitBtn.textContent = 'Enregistrer';
+            cancelEditBtn.hidden = false;
+            showMessage('Mode modification active.');
+            objNameInput.focus();
         }
 
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const keyword = e.target.value.toLowerCase();
-            const filtered = objects.filter(obj => 
-                obj.keywords.some(k => k.toLowerCase().includes(keyword))
-            );
-            displayObjects(filtered);
-        });
+        function resetForm() {
+            addForm.reset();
+            editingId = null;
+            submitBtn.textContent = 'Ajouter';
+            cancelEditBtn.hidden = true;
+        }
+
+        function showMessage(message, isError) {
+            formMessage.textContent = message;
+            formMessage.style.color = isError ? '#b00020' : '#155724';
+        }
+
+        function loadObjects() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function persistObjects() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(objects));
+        }
+
+        refreshList();
     </script>
 </body>
 </html>

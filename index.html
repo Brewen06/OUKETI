@@ -366,6 +366,11 @@
         <header class="app-header">
             <h1><i class="bi bi-search"></i> OUKETI</h1>
             <p>Recherchez vos objets parmi les mots-clés suivants</p>
+            <div class="mt-3">
+                <a href="interface-objets.html" class="btn btn-outline-success">
+                    <i class="bi bi-box-seam"></i> Aller a l'interface objets
+                </a>
+            </div>
         </header>
 
         <div class="card">
@@ -454,6 +459,7 @@
         let TousLesMotsCles = [];
         let MotsCles = [];
         let MotsChoisis = [];
+        const LOCAL_OBJECTS_STORAGE_KEY = 'objets.interface.v1';
 
         function clearDebug() { if (debug) debug.value = ""; }
         function writeln(...args) { 
@@ -478,13 +484,13 @@
             keywordForm.addEventListener('submit', onKeywordSubmit);
             keywordCancelBtn.addEventListener('click', resetKeywordForm);
 
-            writeln("🚀 Application OUKETI initialisée");
+            writeln("Application OUKETI initialisée");
             chargerMotsCles();
         });
 
         async function chargerMotsCles(conserverSelection = false) {
             try {
-                writeln("📥 Chargement des mots-clés...");
+                writeln("Chargement des mots-clés...");
                 const response = await fetch("gestion_mots_cles.php");
                 if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
                 
@@ -502,9 +508,9 @@
 
                 renderMotsCles();
                 renderMotsChoisis();
-                writeln(`✅ ${TousLesMotsCles.length} mots-clés chargés`);
+                writeln(`${TousLesMotsCles.length} mots-clés chargés`);
             } catch (err) {
-                writeln(`❌ Erreur: ${err.message}`);
+                writeln(`Erreur: ${err.message}`);
                 DIV_MotsCles.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> Impossible de charger les mots-clés: ${err.message}</div>`;
             }
         }
@@ -560,11 +566,11 @@
 
                 resetKeywordForm(false);
                 setKeywordFeedback(result.message || (isEdit ? 'Mot-cle modifie.' : 'Mot-cle ajoute.'));
-                writeln(isEdit ? `✏️ Mot-cle modifie: ${libelle}` : `➕ Mot-cle ajoute: ${libelle}`);
+                writeln(isEdit ? `Mot-cle modifie: ${libelle}` : `Mot-cle ajoute: ${libelle}`);
                 await chargerMotsCles(true);
             } catch (error) {
                 setKeywordFeedback(error.message, 'danger');
-                writeln(`❌ Erreur CRUD: ${error.message}`);
+                writeln(`Erreur CRUD: ${error.message}`);
             }
         }
 
@@ -707,9 +713,55 @@
             document.getElementById('resultatsRecherche').innerHTML = `<div class="empty-state"><i class="bi bi-inbox"></i><p>Sélectionnez des mots-clés et cliquez sur "Rechercher"</p></div>`;
         }
 
+        function normalizeToken(value) {
+            return String(value || '')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+        }
+
+        function loadLocalCreatedObjects() {
+            try {
+                const raw = localStorage.getItem(LOCAL_OBJECTS_STORAGE_KEY);
+                const parsed = raw ? JSON.parse(raw) : [];
+                return Array.isArray(parsed) ? parsed : [];
+            } catch (error) {
+                writeln(`⚠️ Objets locaux ignorés: ${error.message}`);
+                return [];
+            }
+        }
+
+        function buildLocalResults(selectedLabels) {
+            const localObjects = loadLocalCreatedObjects();
+            if (selectedLabels.length === 0 || localObjects.length === 0) {
+                return [];
+            }
+
+            const selectedSet = new Set(selectedLabels.map(normalizeToken));
+
+            return localObjects
+                .filter(obj => {
+                    const keywords = Array.isArray(obj.keywords) ? obj.keywords : [];
+                    const keywordSet = new Set(keywords.map(normalizeToken));
+                    // Un objet local est retenu si tous les mots-clés sélectionnés sont présents.
+                    return [...selectedSet].every(token => keywordSet.has(token));
+                })
+                .map(obj => ({
+                    id: `local-${obj.id}`,
+                    nom: obj.name,
+                    quantite: 1,
+                    estConteneur: false,
+                    estContenuDans: null,
+                    sourceLocale: true,
+                    keywords: obj.keywords
+                }));
+        }
+
         async function buttonSendOnClick() {
             const container = document.getElementById('resultatsRecherche');
             const motsChoisisIds = MotsChoisis.map(m => m.id);
+            const selectedLabels = MotsChoisis.map(m => m.label);
 
             if (motsChoisisIds.length === 0) {
                 container.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-circle"></i> Veuillez sélectionner au moins un mot-clé.</div>`;
@@ -724,10 +776,13 @@
                 const response = await fetch(`tous_les_mots_cles.php?search_ids=${encodeURIComponent(motsChoisisIds.join(','))}`);
                 if (!response.ok) throw new Error(`Erreur serveur: ${response.status}`);
                 
-                const objets = await response.json();
-                if (objets.error) throw new Error(objets.error);
+                const objetsServeur = await response.json();
+                if (objetsServeur.error) throw new Error(objetsServeur.error);
+
+                const objetsLocaux = buildLocalResults(selectedLabels);
+                const objets = [...objetsServeur, ...objetsLocaux];
                 
-                writeln(`✅ ${objets.length} objet(s) trouvé(s)`);
+                writeln(`✅ ${objets.length} objet(s) trouvé(s) dont ${objetsLocaux.length} local(aux)`);
                 renderResultats(objets);
             } catch (error) {
                 writeln(`❌ Erreur: ${error.message}`);
@@ -848,6 +903,10 @@
                 const estConteneur = item.estConteneur;
                 const estContenuDans = item.estContenuDans;
                 const imagePath = getImageForObjet(item);
+                const idLabel = item.sourceLocale ? `LOCAL-${String(item.id).replace('local-', '')}` : `#${item.id}`;
+                const conteneurLabel = item.sourceLocale
+                    ? '<em class="text-muted">Objet local</em>'
+                    : (estContenuDans ? `Dans <strong>#${estContenuDans}</strong>` : '<em class="text-muted">Aucun</em>');
                 const row = document.createElement('tr');
                 row.className = 'fade-in';
                 row.style.animationDelay = `${i * 0.05}s`;
@@ -859,11 +918,11 @@
                             : `<div style="width:60px; height:60px; background:#f0f0f0; border-radius:8px; display:flex; align-items:center; justify-content:center;"><i class="bi bi-image text-muted"></i></div>`
                         }
                     </td>
-                    <td><strong>#${item.id}</strong></td>
+                    <td><strong>${idLabel}</strong></td>
                     <td>${item.nom || '-'}</td>
                     <td>${item.quantite ?? 1}</td>
                     <td><span class="badge-container ${estConteneur ? '' : 'badge-object'}"><i class="bi bi-${estConteneur ? 'box-seam' : 'circle'}"></i> ${estConteneur ? 'Conteneur' : 'Objet'}</span></td>
-                    <td>${estContenuDans ? `Dans <strong>#${estContenuDans}</strong>` : '<em class="text-muted">Aucun</em>'}</td>`;
+                    <td>${conteneurLabel}</td>`;
                 tbody.appendChild(row);
             });
 
